@@ -16,13 +16,24 @@ def LCS(A,B):
 
 	return arr[m][n]
 
+
+def CLCS(A, B):
+	longest = LCS(A, B)
+	for i in range(0, len(A)):
+		rotated = A[i:] + A[:i];
+		clcs = LCS(rotated, B)
+		if clcs > longest:
+			longest = clcs
+	return longest
+
+
 def main():
 	if len(sys.argv) != 1:
 		sys.exit('Usage: `python LCS.py < input`')
 	
 	for l in sys.stdin:
 		A,B = l.split()
-		print LCS(A,B)
+		print (CLCS(A, B))
 	return
 
 if __name__ == '__main__':
