@@ -2,11 +2,10 @@ import sys
 import numpy as np
 np.set_printoptions(threshold=np.nan)
 
-graph = np.zeros((8, 5), dtype = int)
+graph = np.zeros((2048, 2048), dtype = int)
 lower_paths = np.zeros((2048, 2048), dtype = int)
 upper_paths = np.zeros((2048, 2048), dtype = int)
-global shortest_path
-shortest_path = np.inf
+longest_subsequence = -1
 m = 0
 n = 0
 
@@ -33,11 +32,18 @@ def LCS(A, B, start_row, lower, upper):
 				elif col == 0 and row != lower_row:
 					graph[row][col] += graph[row-1][col]
 
-	length = graph[m-1+start_row][n-1]
-	print(graph[0:2*m][0:n])
+	subseq_len = graph[m-1+start_row][n-1]
+	print('lower', lower)
+	print('upper', upper)
+	print('subseq_len', subseq_len, 'start_row', start_row)
+	print('graph', graph.shape)
+	print(graph[0:2*m])
 	upper_path = reconstructPath(A, B, m-1+start_row, n-1, True)
 	lower_path =reconstructPath(A, B, m-1+start_row, n-1, False)
-	return length, lower_path, upper_path
+	print('lower_path', lower_path)
+	print('upper_path', upper_path)
+	print('\n')
+	return subseq_len, lower_path, upper_path
 
 def reconstructPath(A, B, row, col, upper):
 	# NOTE: if running slowly, change this to directly reference already 
@@ -91,16 +97,22 @@ def CLCS(A,B):
 	global n
 	n = len(B)
 
-	graph = np.zeros((8, 5), dtype = int)
-	lower_paths = np.zeros((2048, 2048), dtype = int)
-	upper_paths = np.zeros((2048, 2048), dtype = int)
+	global longest_subsequence
+	longest_subsequence = -1
 
-	shortest_path, lower_paths[0][:n], upper_paths[0][:n] = LCS(A, B, 0, np.zeros(n, dtype=int), np.full(n, m-1))
-	lower_paths[m] = lower_paths[0]
-	upper_paths[m] = upper_paths[0]
+	global graph
+	graph = np.zeros((2*m,n), dtype = int)
+	global lower_paths
+	lower_paths = np.zeros((m+1, n), dtype = int)
+	global upper_paths
+	upper_paths = np.zeros((m+1, n), dtype = int)
+
+	longest_subsequence, lower_paths[0][:n], upper_paths[0][:n] = LCS(A, B, 0, np.zeros(n, dtype=int), np.full(n, m-1))
+	lower_paths[m] = lower_paths[0]+m
+	upper_paths[m] = upper_paths[0]+m
 
 	CLCS_recurse(A, B, 0, m)
-	return shortest_path
+	return longest_subsequence
 
 def CLCS_recurse(A, B, lower, upper):
 	if upper - lower <= 1:
@@ -108,9 +120,11 @@ def CLCS_recurse(A, B, lower, upper):
 
 	mid = (lower + upper) / 2
 
-	path_length, lower_paths[mid][:n], upper_paths[mid][:n] = LCS(A, B, mid, lower_paths[lower], upper_paths[upper])
-	if path_length < shortest_path:
-		shortest_path = path_length
+	global longest_subsequence
+	print('longest_subsequence', longest_subsequence)
+	subseq_len, lower_paths[mid][:n], upper_paths[mid][:n] = LCS(A, B, mid, lower_paths[lower], upper_paths[upper])
+	if subseq_len > longest_subsequence:
+		longest_subsequence = subseq_len
 
 	# (maybe clear mid)
 	CLCS_recurse(A, B, lower, mid)
@@ -123,7 +137,7 @@ def main():
 	
 	for l in sys.stdin:
 		A,B = l.split()
-		print (CLCS(A,B))
+		print(CLCS(A,B))
 	return
 
 if __name__ == '__main__':
