@@ -5,13 +5,12 @@ np.set_printoptions(threshold=np.nan)
 graph = np.zeros((8, 5), dtype = int)
 lower_paths = np.zeros((2048, 2048), dtype = int)
 upper_paths = np.zeros((2048, 2048), dtype = int)
+global shortest_path
 shortest_path = np.inf
-
+m = 0
+n = 0
 
 def LCS(A, B, start_row, lower, upper):
-	m = len(A)
-	n = len(B)
-
 	for col in range(n):
 		lower_row = lower[col]
 		upper_row = upper[col]
@@ -35,18 +34,18 @@ def LCS(A, B, start_row, lower, upper):
 					graph[row][col] += graph[row-1][col]
 
 	length = graph[m-1+start_row][n-1]
-	print(graph)
+	print(graph[0:2*m][0:n])
 	upper_path = reconstructPath(A, B, m-1+start_row, n-1, True)
 	lower_path =reconstructPath(A, B, m-1+start_row, n-1, False)
 	return length, lower_path, upper_path
 
 def reconstructPath(A, B, row, col, upper):
-	m = len(A)
-	n = len(B)
+	# NOTE: if running slowly, change this to directly reference already 
+	#		allocated upper and lower_paths arrays
 	path = np.zeros(n, dtype=int)
 	path[n-1] = row
 
-	first_row = row - m - 1
+	first_row = row - m + 1
 	while col >= 0 and row >= first_row:
 		if row == first_row and col == 0:
 			break
@@ -87,18 +86,18 @@ def reconstructPath(A, B, row, col, upper):
 						
 				
 def CLCS(A,B):
+	global m
 	m = len(A)
+	global n
 	n = len(B)
 
-	graph = np.zeros((2*m, n), dtype=int)
-	lower_paths = np.array((m,n), dtype=int)
-	upper_paths = np.array((m, n), dtype=int)
+	graph = np.zeros((8, 5), dtype = int)
+	lower_paths = np.zeros((2048, 2048), dtype = int)
+	upper_paths = np.zeros((2048, 2048), dtype = int)
 
-	print(LCS(A, B, 0, np.zeros(n, dtype=int), np.full(n, m-1)))
-
-	# shortest_path, lower_paths[0], upper_paths[0] = 
-	# lower_paths[m] = lower_paths[0]
-	# upper_paths[m] = upper_paths[0]
+	shortest_path, lower_paths[0][:n], upper_paths[0][:n] = LCS(A, B, 0, np.zeros(n, dtype=int), np.full(n, m-1))
+	lower_paths[m] = lower_paths[0]
+	upper_paths[m] = upper_paths[0]
 
 	CLCS_recurse(A, B, 0, m)
 	return shortest_path
@@ -109,7 +108,7 @@ def CLCS_recurse(A, B, lower, upper):
 
 	mid = (lower + upper) / 2
 
-	path_length, lower_paths[mid], upper_paths[mid] = LCS(A, B, lower_paths[lower], upper_paths[upper])
+	path_length, lower_paths[mid][:n], upper_paths[mid][:n] = LCS(A, B, mid, lower_paths[lower], upper_paths[upper])
 	if path_length < shortest_path:
 		shortest_path = path_length
 
