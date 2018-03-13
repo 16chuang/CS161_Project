@@ -7,7 +7,7 @@ upper_paths = np.array((m,n))
 shortest_path = np.inf
 
 
-def LCS(A, B, lower, upper):
+def LCS(A, B, start_row, lower, upper):
 	m = len(A)
 	n = len(B)
 
@@ -29,11 +29,44 @@ def LCS(A, B, lower, upper):
 				if (row > lower_row and col > 0):
 					graph[row][col] += max(graph[row-1][col], graph[row][col-1])
 
-	length = graph[m-1][n-1]
+	length = graph[m-1+start_row][n-1]
 
-	reconstructPath(lower[0])
+	reconstructPath(A, B, m-1+start_row, n-1)
 
 	return length
+
+def reconstructPath(A, B, row, col):
+	m = len(A)
+	n = len(B)
+	lower_path = np.array(n)
+	upper_path = np.array(n)
+
+	lower_path[n-1] = row
+	upper_path[n-1] = row
+
+	while col > 0:
+		# letters match
+		if A[row%m] == B[col]:
+			row -= 1
+			col -= 1
+			lower_path[col] = row
+			upper_path[col] = row
+
+		else: # letters do not match
+			left = graph[row][col-1]
+			up = graph[row-1][col]
+
+			if left == up or left > up:
+				# go left
+				col -= 1
+				lower_path[col] = row
+				upper_path[col] = row
+			else: # up > left; go up
+				row -= 1
+				# TODO: fill lower_path and upper_path
+		
+				
+
 
 def CLCS(A,B):
 	m = len(A)
@@ -43,7 +76,7 @@ def CLCS(A,B):
 	lower_paths = np.array(m+1)
 	upper_paths = np.array(m+1)
 
-	shortest_path, lower_paths[0], upper_paths[0] = LCS(A, B, np.zeros(n), np.full(n, m))
+	shortest_path, lower_paths[0], upper_paths[0] = LCS(A, B, 0, np.zeros(n), np.full(n, m))
 	lower_paths[m] = lower_paths[0]
 	upper_paths[m] = upper_paths[0]
 
