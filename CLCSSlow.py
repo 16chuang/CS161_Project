@@ -22,8 +22,10 @@ def CLCS(A, B):
 	for i in range(0, len(A)):
 		rotated = A[i:] + A[:i];
 		clcs = LCS(rotated, B)
+		# print clcs
 		if clcs > longest:
 			longest = clcs
+			print rotated
 			print i
 	return longest
 
