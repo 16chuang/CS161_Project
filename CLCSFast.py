@@ -10,6 +10,8 @@ m = 0
 n = 0
 
 def LCS(A, B, start_row, lower, upper):
+	global graph
+
 	for col in range(n):
 		lower_row = lower[col]
 		upper_row = upper[col]
@@ -31,7 +33,6 @@ def LCS(A, B, start_row, lower, upper):
 					graph[row][col] += graph[row][col-1]
 				elif col == 0 and row != lower_row:
 					graph[row][col] += graph[row-1][col]
-
 	subseq_len = graph[m-1+start_row][n-1]
 	print('lower', lower)
 	print('upper', upper)
@@ -118,7 +119,7 @@ def CLCS_recurse(A, B, lower, upper):
 	if upper - lower <= 1:
 		return
 
-	mid = (lower + upper) / 2
+	mid = int((lower + upper) / 2)
 
 	global longest_subsequence
 	print('longest_subsequence', longest_subsequence)
