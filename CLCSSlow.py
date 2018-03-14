@@ -24,6 +24,7 @@ def CLCS(A, B):
 		clcs = LCS(rotated, B)
 		if clcs > longest:
 			longest = clcs
+			print i
 	return longest
 
 
