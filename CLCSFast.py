@@ -9,41 +9,46 @@ longest_subsequence = -1
 m = 0
 n = 0
 
+# TODO: don't assume A is the shorter string
+
 def LCS(A, B, start_row, lower, upper):
 	global graph
+	lowest_row = lower[0]
 
 	for col in range(n):
 		lower_row = lower[col]
 		upper_row = upper[col]
 
-		for row in range(lower_row, upper_row+1):
+		for row in range(max(start_row, lower_row), upper_row+1):
 			# Letters match
 			if A[row%m] == B[col]:
 				graph[row][col] = 1
 				# If not going to fall off, add previous diagonal
-				if (row > lower_row and col > 0):
+				if (row > start_row and col > 0):
 					graph[row][col] += graph[row-1][col-1]
 			# Letters don't match
 			else:
 				graph[row][col] = 0
 				# If not going to fall off, add left or up
-				if (row > lower_row and col > 0):
+				if (row > max(start_row, lower_row) and col > 0):
 					graph[row][col] += max(graph[row-1][col], graph[row][col-1])
-				elif row == lower_row and col != 0:
+				# Left
+				elif row == max(start_row, lower_row) and col != 0:
 					graph[row][col] += graph[row][col-1]
-				elif col == 0 and row != lower_row:
+				# Up
+				elif col == 0 and row != max(start_row, lower_row):
 					graph[row][col] += graph[row-1][col]
 	subseq_len = graph[m-1+start_row][n-1]
-	print('lower', lower)
-	print('upper', upper)
-	print('subseq_len', subseq_len, 'start_row', start_row)
-	print('graph', graph.shape)
-	print(graph[0:2*m])
+	print 'lower', lower
+	print 'upper', upper
+	print 'subseq_len', subseq_len, 'start_row', start_row
+	print 'graph', graph.shape
+	print np.array2string(graph)#.replace('\n', '')
 	upper_path = reconstructPath(A, B, m-1+start_row, n-1, True)
 	lower_path =reconstructPath(A, B, m-1+start_row, n-1, False)
-	print('lower_path', lower_path)
-	print('upper_path', upper_path)
-	print('\n')
+	print 'lower_path', lower_path
+	print 'upper_path', upper_path
+	print '\n'
 	return subseq_len, lower_path, upper_path
 
 def reconstructPath(A, B, row, col, upper):
@@ -74,7 +79,7 @@ def reconstructPath(A, B, row, col, upper):
 			left = graph[row][col-1]
 			up = graph[row-1][col]
 			if left == up:
-				if upper: # move left
+				if not upper: # move left
 					col -= 1
 				else: # move up
 					row -= 1
@@ -122,7 +127,7 @@ def CLCS_recurse(A, B, lower, upper):
 	mid = int((lower + upper) / 2)
 
 	global longest_subsequence
-	print('longest_subsequence', longest_subsequence)
+	print 'longest_subsequence', longest_subsequence
 	subseq_len, lower_paths[mid][:n], upper_paths[mid][:n] = LCS(A, B, mid, lower_paths[lower], upper_paths[upper])
 	if subseq_len > longest_subsequence:
 		longest_subsequence = subseq_len
