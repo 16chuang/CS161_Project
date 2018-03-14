@@ -156,6 +156,11 @@ def CLCS(A,B):
 	global n
 	n = len(B)
 
+	if m > n:
+		temp = A
+		A = B
+		B = temp
+
 	global longest_subsequence
 	longest_subsequence = -1
 
